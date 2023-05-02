@@ -1,0 +1,24 @@
+{
+  "name": "metadata-updatable",
+  "version": "1.0.0",
+  "description": "Smart Contract Adapter to manage Updatable Metadata on ERC721 Tokens",
+  "repository": "https://github.com/aurelianoa/meta-data-updatable.git",
+  "author": "@aurealarcon aurelianoa.eth",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "@ethersproject/abi": "^5.4.7",
+    "@ethersproject/providers": "^5.4.7",
+    "@openzeppelin/contracts": "^4.8.3",
+    "@typechain/ethers-v5": "^10.1.0",
+    "@types/chai": "^4.2.0",
+    "@types/mocha": ">=9.1.0",
+    "@types/node": ">=12.0.0",
+    "chai": "^4.2.0",
+    "ethers": "^5.4.7",
+    "solidity-coverage": "^0.8.0",
+    "ts-node": ">=8.0.0",
+    "typechain": "^8.1.0",
+    "typescript": ">=4.5.0"
+  }
+}
