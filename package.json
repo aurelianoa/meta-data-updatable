@@ -1,6 +1,6 @@
 {
   "name": "@aurelianoa/metadataupdatable",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Smart Contract Adapter to manage Updatable Metadata on ERC721 Tokens",
   "repository": "https://github.com/aurelianoa/meta-data-updatable.git",
   "author": "@aurealarcon aurelianoa.eth",
