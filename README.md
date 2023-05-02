@@ -6,9 +6,9 @@ Setup:
 
 
 ```shell
-yarn add aurelianoa/meta-data-updatable
-npm install aurelianoa/meta-data-updatable
-pnpm install aurelianoa/meta-data-updatable
+yarn add aurelianoa/metadataupdatable
+npm install aurelianoa/metadataupdatable
+pnpm install aurelianoa/metadataupdatable
 ```
 
 In your ERC721 Solitidy Smart Contract:
