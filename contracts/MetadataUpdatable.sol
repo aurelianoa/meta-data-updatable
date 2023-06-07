@@ -6,17 +6,14 @@
 
 pragma solidity ^0.8.17;
 
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-
-abstract contract MetadataUpdatable is Ownable {
-    using Strings for uint256;
-
+abstract contract MetadataUpdatable {
+    
     bool private isRevealed = false;
     string private _contractURI = "";
     string private tokenBaseURI = "";
     string private tokenRevealedBaseURI = "";
     string private tokenBucketURI = "";
+    string private fileExtension = "";
 
     /// @dev struct of a variant
     struct Variant {
@@ -44,7 +41,20 @@ abstract contract MetadataUpdatable is Ownable {
     /// errors
     error NotValidVariantProvided(string variant);
 
+    /// middleware to be overriden
+    /// @notice this will be called by all the administrative functions
+    /// @dev this will be overriden by the child contract
+    function middleware() internal virtual returns (bool) {}
 
+    /// Modifier to be applied in some adminnistrative functions
+    modifier onlyPermisioned() {
+        require(middleware(), "Not permisioned");
+        _;
+    }
+
+    /// Set the variant for a token
+    /// @param tokenId uint256
+    /// @param variant string
     function _setSelectedVariant(uint256 tokenId, string memory variant) internal {
         if(!isValidVariant(variant)) {
             revert NotValidVariantProvided(variant);
@@ -54,6 +64,9 @@ abstract contract MetadataUpdatable is Ownable {
         emit VariantUpdated(tokenId, variant);
     }
 
+    /// Get seed by variant
+    /// @param variant string
+    /// @return string
     function getSeedByVariant(string memory variant) internal view returns (string memory) {
         return variantMetadata[variant].seed;
     }
@@ -68,6 +81,7 @@ abstract contract MetadataUpdatable is Ownable {
         string memory key = selectedVariant[tokenId];
         string memory bucketURI = tokenBucketURI;
         string memory postURI = "";
+        string memory tokenIdString = uint2str(tokenId);
         if(bytes(bucketURI).length > 0) {
             postURI = string(abi.encodePacked(tokenBucketURI, "/"));
         }
@@ -76,8 +90,8 @@ abstract contract MetadataUpdatable is Ownable {
             variantMetadata[key].seed, 
             "/", 
             postURI,
-            tokenId.toString(),
-            ".json"
+            tokenIdString,
+            fileExtension
             ));
     }
 
@@ -87,7 +101,7 @@ abstract contract MetadataUpdatable is Ownable {
     /// @param variant string
     /// @param seed string
     /// @param price uint256
-    function setVariant(string memory variant, string memory seed, uint256 price, bool active) external onlyOwner {
+    function setVariant(string memory variant, string memory seed, uint256 price, bool active) external onlyPermisioned {
         Variant memory _variant = Variant (
             seed,
             price,
@@ -96,47 +110,98 @@ abstract contract MetadataUpdatable is Ownable {
         variantMetadata[variant] = _variant;
     }
 
-    function setReveal(bool _isRevealed) external onlyOwner {
+    /// Set file extension
+    /// @param _fileExtension string
+    function setFileExtension(string memory _fileExtension) external onlyPermisioned {
+        fileExtension = _fileExtension;
+    }
+
+    /// Set if the metadata is revealed
+    /// @param _isRevealed bool
+    function setReveal(bool _isRevealed) external onlyPermisioned {
         isRevealed = _isRevealed;
     }
- 
-    function setContractURI(string calldata uri) external onlyOwner {
+
+    /// Set the contract URI
+    /// @param uri string
+    function setContractURI(string calldata uri) external onlyPermisioned {
         _contractURI = uri;
 
         emit ContractURIUpdated(msg.sender);
     }
 
-    function setBaseURI(string calldata uri) external onlyOwner {
+    /// set the base URI
+    /// @param uri string
+    function setBaseURI(string calldata uri) external onlyPermisioned {
         tokenBaseURI = uri;
 
         emit BaseURIUpdated(msg.sender);
     }
 
-    function setRevealedBaseURI(string calldata revealedBaseURI) external onlyOwner {
+    /// set the revealed base URI
+    /// @param revealedBaseURI string
+    function setRevealedBaseURI(string calldata revealedBaseURI) external onlyPermisioned {
         tokenRevealedBaseURI = revealedBaseURI;
 
         emit IsRevealedBaseURI(msg.sender);
     }
 
-    function setRevealedBucketURI(string calldata bucketURI) external onlyOwner {
+    /// set the revealed bucket URI
+    /// @param bucketURI string
+    function setRevealedBucketURI(string calldata bucketURI) external onlyPermisioned {
         tokenBucketURI = bucketURI;
     }
-
+    /// get the contract URI
+    /// @return string
+    /// @dev this was required by OpenSea in the past. Will be deprecated in later versions
     function contractURI() public view returns (string memory) {
         return _contractURI;
     }
 
     /// HELPERS
 
+    /// @dev check if the variant is valid
+    /// @param variant string
+    /// @return bool
     function isValidVariant(string memory variant) internal view returns (bool) {
         return variantMetadata[variant].active;
     }
 
+    /// get the variant price
+    /// @param variant string
+    /// @return uint256
     function getVariantPrice(string memory variant) internal view returns (uint256) {
         return variantMetadata[variant].price;
     }
-
+    
+    /// chek if the metadata is revealed
+    /// @return bool
     function isMetadataRevealed() public view returns (bool) {
         return isRevealed;
+    }
+
+    /// @dev internal function to convert uint to string
+    /// @param _i uint
+    /// @return _uintAsString string
+    function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
+        if (_i == 0) {
+            return "0";
+        }
+        uint j = _i;
+        uint len;
+        while (j != 0) {
+            len++;
+            j /= 10;
+        }
+        bytes memory bstr = new bytes(len);
+        uint k = len;
+        while (_i != 0) {
+            k = k-1;
+            uint8 temp = (48 + uint8(_i - _i / 10 * 10));
+            bytes1 b1 = bytes1(temp);
+            bstr[k] = b1;
+            _i /= 10;
+        }
+        return string(bstr);
     }
 }
