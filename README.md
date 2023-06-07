@@ -14,28 +14,29 @@ pnpm install aurelianoa/metadataupdatable
 In your ERC721 Solitidy Smart Contract:
 
 ```shell
-import { MetadataUpdatable } from "./meta-data-updatable/contracts/MetadataUpdatable.sol";
+import { MetadataUpdatable } from "@aurelianoa/metadataupdatable/contracts/MetadataUpdatable.sol";
+```
+Override the ```middleware``` function to do the proper authorization to the admin functions
+
+```shell
+function middleware() internal view override returns (bool)  {
+        return msg.sender == _authorized;
+}
+
+/// OR
+
+function middleware() internal view override onlyOwner returns (bool)  {
+        return true;
+}
 ```
 
-And then usen the functions 
+And then use this functions 
 
 
 ```shell
-/// Update variant
-/// @notice the holder can update the gender metadata of the given token
-/// @param tokenId uint256
-/// @param variant string
-function updateVariant(uint256 tokenId, string memory variant) external payable {
-    require(isMetadataRevealed(), "Metadata not revealed yet");
-    require(ownerOf(tokenId) == msg.sender, "you dont own this token");
-    require(msg.value == getVariantPrice(variant), "wrong ETH Sent");
-    _setSelectedVariant(tokenId,  variant);
-}
+function updateVariant(uint256 tokenId, string memory variant)
 
-/// get tokenMetadata
-/// @notice it will use the MetadataUpdatable
-/// @param tokenId uint256
-/// @return string
+/// use getTokenURI on yous ERC721 tokenURI standar
 function tokenURI(uint256 tokenId) public view override(ERC721A, IERC721A) returns (string memory) {
     require(_exists(tokenId), "Token does not exist");
 
@@ -46,6 +47,9 @@ Then manage the variants and url metadata with the functions:
 
 ```shell
 function setBaseURI(string calldata uri)
+```
+```shell
+function setFileExtension(string memory _fileExtension)
 ```
 
 ```shell
