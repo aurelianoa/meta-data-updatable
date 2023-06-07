@@ -1,8 +1,15 @@
 # Meta Data Updatable
 
-This package will help ERC721 Smart contracts to easiliy handle metadata updates
+This package will help ERC721 Smart contracts to easiliy handle metadata updates.
 
-Setup:
+## Overview:
+
+This system register a variant per each ```tokenId``` each ```tokenId``` can update its own metadata to anew available variant.
+
+![Variant Metadata System Diagram](docs/assets/variantsystem.png)
+
+
+## Setup:
 
 
 ```shell
@@ -30,7 +37,8 @@ function middleware() internal view override onlyOwner returns (bool)  {
 }
 ```
 
-And then use this functions 
+
+## Usage:
 
 
 ```shell
